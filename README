@@ -1,1 +1,10 @@
-Placeholder text.
+6502 fpga/cpld project
+======================
+
+Experimental 6502 verilog stuff. Using logic to do:
+
+- bus decoding
+- clock (1mhz and single stepping)
+- read and write to bus 
+
+... probably more. 
