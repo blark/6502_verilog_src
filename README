@@ -1,10 +1,18 @@
-6502 fpga/cpld project
-======================
+6502 fpga/cpld interface fun
+============================
 
-Experimental 6502 verilog stuff. Using logic to do:
+Experimental stuff for using the Mojo FPGA dev board with a WDC 65C02 MPU. 
 
-- bus decoding
-- clock (1mhz and single stepping)
-- read and write to bus 
+The plan, using logic to do:
+
+- WORKING: 1Mhz clock with enable switch (and single step button) 
+- Bus decoding to select the right chip
+- Other bus stuff:
+    - use Mojo - AVR serial to send address bus to PC to see what's on it
+    - interface 6502 with SPI SRAM 
+- FPGA can be used as ROM to get the party started
 
 ... probably more. 
+
+To get in touch with me email: 
+blark -at- pwnp -dot- al
