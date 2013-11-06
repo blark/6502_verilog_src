@@ -1,20 +1,21 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// 
-// This module generates a 1Mhz clock for the 6502 MPU (from a 50Mhz clock).
+// ----------------------------------------------------------------------------- 
 //
-//////////////////////////////////////////////////////////////////////////////////
+// This module generates a 1Mhz clock for the 6502 MPU (from 50Mhz clock).
+// clk_en switch stops the clock high, and the single_step button will pull it
+// low for .5us before returning to high.
+//
+// ----------------------------------------------------------------------------- 
 
 module mpu_clock_div(
 	input clk,
 	input rst,
-	input clk_en, // debounced clock_enable switch
-	input step_press, // debounced step button
+	input clk_en,        // debounced clock_en switch
+	input single_step,   // debounced single step, high for one clk cycle
 	output reg mpu_clk
 	);
 
 // 1Mhz with 50% duty cycle. 
-localparam PERIOD = 24; 
+localparam PERIOD = 5'd24; 
 
 reg [4:0] clk_count = 5'b0; 
 
@@ -28,11 +29,14 @@ always @(posedge clk) begin
       clk_count <= 5'b0;	// reset counter
       mpu_clk <= ~mpu_clk; // toggle mpu clock
       end
-    //if (clk_en && mpu_clk) begin
-      //clock stops high when clk_en is true. 
-      //end
-    else clk_count <= clk_count + 5'b1;
+    else if (mpu_clk && clk_en) begin  // stop mpu_clk high for the 6502
+      if (single_step) begin  // single_step was pressed
+         clk_count <= 5'b0;
+         mpu_clk <= 0; // run one cycle 
+         end
+      end
+    else clk_count <= clk_count + 1'b1;
     end
 end
-  
+
 endmodule

@@ -17,8 +17,9 @@ module mojo_top(
    output[7:0]data_bus, // data bus
    input[15:0]addr_bus, // address buss
    output bus_en,       // bus enable (active high)
-   output mpu_rst       // reset
-	 );
+   output mpu_rst,      // reset
+   output single_step
+   );
 
 wire rst = ~rst_n;
 
@@ -26,36 +27,56 @@ assign spi_miso = 1'bz;
 assign avr_rx = 1'bz;
 assign spi_channel = 4'bzzzz;
 
-assign data_bus = 8'hEA; // puts NOP instruction to the 6502 data bus
+assign data_bus = 8'hEA; // puts NOP instruction on the 6502 data bus
 assign bus_en = 1'b0;	// for now hold the 6502 bus enable low
-assign mpu_reset = 1'b0; // reset held low
+assign mpu_rst = 1'b0; // reset held low
 	 
 assign led[7:2] = 6'b0;
 assign led[0] = clk_en;
-assign led[1] = step_btn_status;
+assign led[1] = step_state;
+
+avr_interface avr_interface (
+    .clk(clk),
+    .rst(rst),
+    .cclk(cclk),
+    .spi_miso(spi_miso),
+    .spi_mosi(spi_mosi),
+    .spi_sck(spi_sck),
+    .spi_ss(spi_ss),
+    .spi_channel(spi_channel),
+    .tx(avr_rx), // FPGA tx goes to AVR rx
+    .rx(avr_tx),
+    .channel(4'd15), // invalid channel disables the ADC
+    .new_sample(),
+    .sample(),
+    .sample_channel(),
+    .tx_data(tx_data),
+    .new_tx_data(new_tx_data),
+    .tx_busy(tx_busy),
+    .tx_block(avr_rx_busy),
+    .rx_data(rx_data),
+    .new_rx_data(new_rx_data)
+);
 
 mpu_clock_div mpu_clock_divider (
    .clk(clk),
    .rst(rst),
    .clk_en(clk_en),
-   .step_press(step_press),
+   .single_step(single_step),
    .mpu_clk(mpu_clk)
    );
 
-debounce reset_switch_debounce (
+debounce clock_switch_debounce (
    .clk(clk),
    .PB(clk_switch),	
-   .PB_state(clk_en),
-   .PB_down(clk_en_down),
-   .PB_up(clk_en_up)
+   .PB_state(clk_en)
    );
 
 debounce step_btn_debounce (
    .clk(clk),
    .PB(step_btn),
-   .PB_state(step_btn_status),
-   .PB_down(step_press),
-   .PB_up(step_up)
+   .PB_state(step_state),
+   .PB_down(single_step)
    );
 
 endmodule
