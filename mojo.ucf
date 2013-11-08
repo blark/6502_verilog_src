@@ -24,6 +24,8 @@ NET "clk_switch" LOC = P6;
 NET "single_step" LOC = P16;
 NET "bus_en" LOC = P120;
 NET "mpu_rst" LOC = P121;
+NET "mpureset_btn" LOC = P32;
+
 // -- busses --
 NET "data_bus<0>" LOC = P57;
 NET "data_bus<1>" LOC = P66;
@@ -33,6 +35,7 @@ NET "data_bus<4>" LOC = P80;
 NET "data_bus<5>" LOC = P82;
 NET "data_bus<6>" LOC = P84;
 NET "data_bus<7>" LOC = P87;
+//
 NET "addr_bus<0>" LOC = P94;
 NET "addr_bus<1>" LOC = P95;
 NET "addr_bus<2>" LOC = P97;

@@ -18,6 +18,7 @@ module mojo_top(
    input[15:0]addr_bus, // address buss
    output bus_en,       // bus enable (active high)
    output mpu_rst,      // reset
+   input mpureset_btn,       // mpu reset
    output single_step
    );
 
@@ -28,12 +29,18 @@ assign avr_rx = 1'bz;
 assign spi_channel = 4'bzzzz;
 
 assign data_bus = 8'hEA; // puts NOP instruction on the 6502 data bus
-assign bus_en = 1'b0;	// for now hold the 6502 bus enable low
-assign mpu_rst = 1'b0; // reset held low
+assign bus_en = 1'b1;	// for now hold the 6502 bus enable low
+assign mpu_rst = ~rst_state;
 	 
 assign led[7:2] = 6'b0;
 assign led[0] = clk_en;
 assign led[1] = step_state;
+
+wire [7:0] tx_data;
+wire new_tx_data;
+wire tx_busy;
+wire [7:0] rx_data;
+wire new_rx_data;
 
 avr_interface avr_interface (
     .clk(clk),
@@ -58,6 +65,18 @@ avr_interface avr_interface (
     .new_rx_data(new_rx_data)
 );
 
+message_printer debugPrinter (
+   .clk(clk),
+   .rst(rst),
+   .tx_data(tx_data),
+   .new_tx_data(new_tx_data),
+   .tx_busy(tx_busy),
+   .rx_data(rx_data),
+   .new_rx_data(new_rx_data),
+   .data_bus(data_bus),
+   .addr_bus(addr_bus)
+   );
+
 mpu_clock_div mpu_clock_divider (
    .clk(clk),
    .rst(rst),
@@ -77,6 +96,12 @@ debounce step_btn_debounce (
    .PB(step_btn),
    .PB_state(step_state),
    .PB_down(single_step)
+   );
+
+debounce mpu_reset (
+   .clk(clk),
+   .PB(mpureset_btn),
+   .PB_state(rst_state)
    );
 
 endmodule

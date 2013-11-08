@@ -29,10 +29,10 @@ always @(posedge clk) begin
       clk_count <= 5'b0;	// reset counter
       mpu_clk <= ~mpu_clk; // toggle mpu clock
       end
-    else if (mpu_clk && clk_en) begin  // stop mpu_clk high for the 6502
+    else if (mpu_clk && clk_en) begin  // stop mpu_clk low for the 6502
       if (single_step) begin  // single_step was pressed
          clk_count <= 5'b0;
-         mpu_clk <= 0; // run one cycle 
+         mpu_clk <= 1'b0; // run one cycle 
          end
       end
     else clk_count <= clk_count + 1'b1;
